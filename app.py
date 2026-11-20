@@ -176,7 +176,7 @@ if uploaded_files:
                         use_container_width=True
                     )
                 
-                                with col2:
+                with col2:
                     dati_gest = {
                         "Data documento": df_testate_mod["Data"],
                         "Numero documento": df_testate_mod["N. Documento"],
@@ -204,7 +204,6 @@ if uploaded_files:
                         use_container_width=True
                     )
 # FINE CODICE
-
 
 
 
