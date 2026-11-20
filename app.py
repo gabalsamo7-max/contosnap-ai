@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field
 
 st.set_page_config(page_title="ContoSnapAI - Contabilità & Gestionali", page_icon="📊", layout="wide")
 
-# --- CONFIGURAZIONE COMMERCIALE ---
 CODICI_PRO_VALIDI = ["VIP2026", "CLIENTEPRO", "STUDIO100"]
 LIMITE_GRATIS = 2
 LINK_PAGAMENTO_STRIPE = "https://stripe.com"
@@ -19,11 +18,9 @@ try:
 except Exception:
     API_KEY = ""
 
-# --- INTESTAZIONE ---
 st.title("📊 ContoSnapAI — Estrattore Contabile per Aziende e Commercialisti")
 st.markdown("Estrae **testata fiscale**, **singole righe articolo** ed esporta in formato **Excel Commercialista** o **Gestionale (Fatture in Cloud / Easyfatt)**.")
 
-# --- BARRA LATERALE ---
 with st.sidebar:
     st.header("💎 Piano Attivo")
     codice_inserito = st.text_input("Hai un Codice Licenza PRO?", type="password", placeholder="Inserisci codice...")
@@ -37,7 +34,6 @@ with st.sidebar:
         st.markdown("- ✅ Caricamento massivo illimitato\n- ✅ Estrazione singole righe prodotto\n- ✅ Export per Fatture in Cloud / Easyfatt")
         st.link_button("💳 Ottieni Codice PRO", LINK_PAGAMENTO_STRIPE, use_container_width=True)
 
-# --- STRUTTURA DATI (TESTATA + SINGOLE RIGHE PRODOTTO) ---
 class RigaArticolo(BaseModel):
     descrizione: str = Field(description="Descrizione del prodotto o servizio acquistato")
     quantita: float = Field(description="Quantità acquistata, usa 1.0 se non specificata")
@@ -93,7 +89,6 @@ def estrai_documento_completo(file_bytes, mime_type, chiave_api):
                     raise e
     raise ultimo_errore
 
-# --- AREA DI CARICAMENTO ---
 uploaded_files = st.file_uploader(
     "Trascina qui PDF, scansioni o foto di scontrini/fatture",
     type=["pdf", "jpg", "jpeg", "png", "webp"],
@@ -115,7 +110,6 @@ if uploaded_files:
                 try:
                     dati = estrai_documento_completo(file.getvalue(), file.type, API_KEY)
                     
-                    # 1. Aggiungi riga al Riepilogo Contabile
                     lista_testate.append({
                         "File": file.name,
                         "Tipo Doc.": dati.tipo_documento,
@@ -132,7 +126,6 @@ if uploaded_files:
                         "Conto Contabile": dati.conto_contabile
                     })
                     
-                    # 2. Aggiungi tutte le singole righe prodotto al Dettaglio Articoli
                     for art in dati.articoli:
                         lista_articoli.append({
                             "File Origine": file.name,
@@ -157,7 +150,6 @@ if uploaded_files:
                 
                 st.success(f"✅ Elaborati {len(lista_testate)} documenti e estratte {len(lista_articoli)} righe articolo!")
                 
-                # Schede interattive nel browser
                 tab1, tab2 = st.tabs(["📑 Riepilogo Fiscale (Commercialista)", "🛒 Dettaglio Singole Righe Prodotto"])
                 
                 with tab1:
@@ -170,7 +162,6 @@ if uploaded_files:
                 st.subheader("📥 Scarica i tracciati pronti all'uso")
                 col1, col2 = st.columns(2)
                 
-                # EXPORT 1: Excel Multi-Foglio per Commercialista
                 with col1:
                     buffer_comm = io.BytesIO()
                     with pd.ExcelWriter(buffer_comm, engine='openpyxl') as writer:
@@ -185,12 +176,8 @@ if uploaded_files:
                         use_container_width=True
                     )
                 
-                # EXPORT 2: Tracciato compatibile con Gestionali (Fatture in Cloud / Easyfatt)
                 with col2:
-                    df_gestionale = pd.DataFrame({
-                        "Data documento": df_testate_mod["Data"],
-                        "Numero documento": df_testate_mod["N. Documento"],
-                    df_gestionale = pd.DataFrame({
+                    dati_gest = {
                         "Data documento": df_testate_mod["Data"],
                         "Numero documento": df_testate_mod["N. Documento"],
                         "Fornitore": df_testate_mod["Fornitore"],
@@ -200,21 +187,6 @@ if uploaded_files:
                         "Imponibile": df_testate_mod["Imponibile (€)"],
                         "Aliquota IVA": df_testate_mod["Aliquota IVA"],
                         "Importo IVA": df_testate_mod["IVA (€)"],
-                        "Totale documento": df_testate_mod["Totale (€)"],
-                        "Metodo pagamento": df_testate_mod["Pagamento"]
-                    })
-                    
-                    buffer_gest = io.BytesIO()
-                    with pd.ExcelWriter(buffer_gest, engine='openpyxl') as writer:
-                        df_gestionale.to_excel(writer, index=False, sheet_name='Import_Gestionale')
-                    
-                    st.download_button(
-                        label="🏢 Export Gestionale (Fatture in Cloud / Easyfatt)",
-                        data=buffer_gest.getvalue(),
-                        file_name="Import_Gestionale_ContoSnapAI.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        use_container_width=True
-                    )
 
 
 
