@@ -203,7 +203,27 @@ if uploaded_files:
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True
                     )
+
+# --- SEZIONE INFORMATIVA IN FONDO ALLA PAGINA ---
+st.divider()
+info_col1, info_col2 = st.columns(2)
+
+with info_col1:
+    with st.expander("📲 Installa ContoSnapAI sul tuo telefono (iPhone & Android)"):
+        st.markdown("""
+        Puoi usare **ContoSnapAI** come una vera app sul tuo smartphone per fotografare scontrini e bolle al volo:
+        * **Su iPhone (Safari):** Tocca l'icona **Condividi** (quadrato con freccia in basso) -> **"Aggiungi alla schermata Home"**.
+        * **Su Android (Chrome):** Tocca i **tre puntini** in alto a destra -> **"Aggiungi a schermata Home"** (o *Installa app*).
+        """)
+
+with info_col2:
+    with st.expander("🔒 Privacy & Sicurezza dei Dati"):
+        st.markdown("""
+        * **Zero archiviazione:** I tuoi PDF e le tue foto vengono elaborati temporaneamente in memoria solo per generare il foglio Excel e vengono **eliminati subito** al termine dell'operazione.
+        * **Nessun database:** ContoSnapAI non conserva né rivende alcun dato contabile o fiscale dei documenti caricati.
+        """)
 # FINE CODICE
+
 
 
 
