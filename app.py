@@ -190,6 +190,31 @@ if uploaded_files:
                     df_gestionale = pd.DataFrame({
                         "Data documento": df_testate_mod["Data"],
                         "Numero documento": df_testate_mod["N. Documento"],
+                    df_gestionale = pd.DataFrame({
+                        "Data documento": df_testate_mod["Data"],
+                        "Numero documento": df_testate_mod["N. Documento"],
+                        "Fornitore": df_testate_mod["Fornitore"],
+                        "Partita IVA": df_testate_mod["Partita IVA"],
+                        "Codice Fiscale": df_testate_mod["Codice Fiscale"],
+                        "Descrizione": df_testate_mod["Conto Contabile"] + " - Rif. " + df_testate_mod["N. Documento"],
+                        "Imponibile": df_testate_mod["Imponibile (€)"],
+                        "Aliquota IVA": df_testate_mod["Aliquota IVA"],
+                        "Importo IVA": df_testate_mod["IVA (€)"],
+                        "Totale documento": df_testate_mod["Totale (€)"],
+                        "Metodo pagamento": df_testate_mod["Pagamento"]
+                    })
+                    
+                    buffer_gest = io.BytesIO()
+                    with pd.ExcelWriter(buffer_gest, engine='openpyxl') as writer:
+                        df_gestionale.to_excel(writer, index=False, sheet_name='Import_Gestionale')
+                    
+                    st.download_button(
+                        label="🏢 Export Gestionale (Fatture in Cloud / Easyfatt)",
+                        data=buffer_gest.getvalue(),
+                        file_name="Import_Gestionale_ContoSnapAI.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
 
 
 
